@@ -1,6 +1,6 @@
 # SyscallPredator
 
-SyscallPredator is a method of direct syscalling detection.
+SyscallPredator is a method of detecting direct syscalls.
 It consists of 2 components that assist with the monitoring of processes and stack analysis.
 The first component will track any new processes started via `ProcessStart` events, and any images that the process subsequently loads via `ImageLoad` events.
 The second component analyzes `StackWalk/Stack` events and determines whether the `SysExit` returns to untrusted user space memory.
@@ -14,12 +14,12 @@ Do not use this to leverage and communicate with machines that you do not have a
 Direct syscalls are a method of performing syscalls in an attempt to bypass **Endpoint Detection & Response** (EDR).
 EDRs will hook into `ntdll.dll` to inspect elements before syscalls.
 To avoid detection from the userland hooks, a direct syscall can be used.
-If the appropriate SSN is known, any syscall endpoint can be reached by executing a `syscall` instruction.
-This means a `syscall` can be executed internally, while getting the same desired effect.
+If the appropriate System Service Number (SSN) is known, any syscall endpoint can be reached by executing a `syscall` instruction.
+This means a `syscall` can be executed outside of a syscall stub, getting the desired effect.
 
-In order to detect such behavior, **Event Tracing for Windows** may be used.
-If the correct kernel provider is enabled for tracing events, a callback can be reached with an associated stack capture for that event.
-A simple analysis can dictate the `syscall` execution origin.
+**Event Tracing for Windows** (ETW) may be used to detect this behavior.
+If appropriate kernel events are enabled inside a tracing session, a callback can be reached to provide analysis for that event.
+Analyzing this event can dictate the `syscall` execution origin.
 
 ## How it works.
 
@@ -45,6 +45,7 @@ Even if the exact syscall stub was called (for maximum control), it would be evi
 → kernel32!BaseThreadInitThunk
 → example.exe!0x00000000004010EA
 → ntdll!ZwCreateThreadEx
+---------------------------------
 → ntoskrnl!PsCreateSystemThreadEx
 ```
 
@@ -55,6 +56,7 @@ If the first user space address lies within the originating process' image, this
 → ntdll!RtlUserThreadStart
 → kernel32!BaseThreadInitThunk
 → example.exe!0x00000000004010EA ← No API call before kernel mode transition.
+---------------------------------
 → ntoskrnl!PsCreateSystemThreadEx
 ```
 
