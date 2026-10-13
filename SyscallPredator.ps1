@@ -67,7 +67,7 @@ function SyscallPredator {
         # Process hashmap -> ID : Thread hashmap
         #                       : Loaded modules list
         #
-	$ProcessList			                        = @{}
+        $ProcessList                                            = @{}
 
         function GetModule {
                 [CmdletBinding()]
@@ -85,7 +85,7 @@ function SyscallPredator {
                 }
         }
 
-	function GetCallStack {
+        function GetCallStack {
                 [CmdletBinding()]
                 param(
                         [Parameter(Mandatory)]
@@ -100,7 +100,7 @@ function SyscallPredator {
                 return "{0}+0x{1:X}" -f $Module.ImageFileName, ($Address - $Module.ImageBaseAddress)
         }
 
-	function ReportDirectSyscall {
+        function ReportDirectSyscall {
                 [CmdletBinding()]
                 param(
                         [Parameter(Mandatory)]
@@ -157,7 +157,7 @@ function SyscallPredator {
         }
 
         $Assembly                                               = [Reflection.Assembly]::LoadFrom([IO.Path]::Combine($HOME, ".NUGET\PACKAGES\MICROSOFT.DIAGNOSTICS.TRACING.TRACEEVENT\3.2.6\LIB\NETSTANDARD2.0\MICROSOFT.DIAGNOSTICS.TRACING.TRACEEVENT.DLL"))
-	$Session                                                = [Microsoft.Diagnostics.Tracing.Session.TraceEventSession]::new("EventTracing")
+        $Session                                                = [Microsoft.Diagnostics.Tracing.Session.TraceEventSession]::new("EventTracing")
         $SessionKeywords                                        = [Microsoft.Diagnostics.Tracing.Parsers.KernelTraceEventParser+Keywords]
         $Result                                                 = $Session.EnableKernelProvider(
                 $SessionKeywords::Process -bor
